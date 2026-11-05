@@ -48,7 +48,19 @@ Saved choices override these defaults. With no saved choices the page is as abov
 | `INTERNET` | Open-Meteo: the place search, the weather and the air quality. |
 
 That is all. What is sent: the city name you type in the search, then that place's latitude and longitude. No
-account, no telemetry, no ads, no background service, no location permission. The chosen city stays in the
+account, no telemetry, no ads, no location permission. The one thing that runs off the page is the reading for
+Home's weather line (below), and only when the launcher asks for it.
+
+## The weather line on Home (home_weather)
+
+Set the launcher's `home_weather` key to `io.github.sumyabazar1.weather` (`config.xml` or a theme) and Home shows
+the weather now under the date, for example "10° · Partly cloudy", in the unit the page uses. The launcher stays
+offline: it reads one line from this app's read-only provider (`content://io.github.sumyabazar1.weather.now/now`,
+named in the `com.gathin.tvhome.weather` meta-data), which holds only that line, no place or coordinates.
+
+When Home reads a line older than 30 minutes, the app fetches once in a background job, when the network is up,
+and Home updates. Nothing repeats by itself: with Home off screen, nothing is fetched. A failed fetch waits 5
+minutes before the next try, and a reading older than three hours is not shown. The chosen city stays in the
 app's own storage (backups are off).
 
 ## Build and install

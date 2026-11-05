@@ -297,6 +297,22 @@
                             android:letterSpacing="0.14"
                             android:textAllCaps="true"
                             android:visibility="gone" />
+
+                        <!-- The weather now ("10° · Partly cloudy"), shown when home_weather names an add-on. -->
+                        <TextView
+                            android:id="@+id/homeWeather"
+                            android:gravity="left"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            android:textColor="#D9FFFFFF"
+                            android:textSize="14sp"
+                            android:fontFamily="@string/font_regular"
+                            android:letterSpacing="0.14"
+                            android:textAllCaps="true"
+                            android:visibility="gone" />
                     </LinearLayout>
                 </LinearLayout>
 

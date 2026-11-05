@@ -27,9 +27,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * The weather for one place, full screen: now, the air quality and the next days (options.xml). It reads Open-Meteo only
- * while it is on screen (every {@link Forecast#REFRESH_MS}, or {@link Forecast#RETRY_MS} after a failure) and
- * does nothing in the background. The place is chosen once with a search and kept in the app's preferences.
+ * The weather for one place, full screen: now, the air quality and the next days (options.xml). It reads Open-Meteo
+ * while it is on screen (every {@link Forecast#REFRESH_MS}, or {@link Forecast#RETRY_MS} after a failure); the only
+ * other fetch is {@link RefreshJob}, when a launcher reads Home's weather line and it is stale. The place is chosen
+ * once with a search and kept in the app's preferences.
  */
 public final class WeatherActivity extends Activity {
     private static final String PREFS = "place";
@@ -119,6 +120,7 @@ public final class WeatherActivity extends Activity {
                     lastReport = result;
                     updatedAt = new Date();
                     show(result);
+                    NowProvider.save(this, result);
                 }
                 else if (!shown) message.setText(R.string.offline);
                 main.postDelayed(tick, result != null ? Forecast.REFRESH_MS : Forecast.RETRY_MS);
@@ -244,6 +246,7 @@ public final class WeatherActivity extends Activity {
             rows.addAll(optionRows());
             rows.notifyDataSetChanged();
             if (lastReport != null) show(lastReport); // Display choices do not make another network request.
+            NowProvider.changed(this); // Home's line follows the unit.
         };
         dialog.setOnDismissListener(d -> {
             if (forecastDays != initialDays) refresh(); // One fetch after all choices, including Back.
@@ -355,6 +358,7 @@ public final class WeatherActivity extends Activity {
                             .putLong("lat", Double.doubleToRawLongBits(p.latitude))
                             .putLong("lon", Double.doubleToRawLongBits(p.longitude))
                             .apply();
+                    NowProvider.clear(this);
                     lastReport = null;
                     shown = false;
                     content.setVisibility(View.INVISIBLE);

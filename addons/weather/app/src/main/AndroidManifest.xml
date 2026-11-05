@@ -30,5 +30,17 @@
             </intent-filter>
             <meta-data android:name="com.gathin.tvhome.card" android:resource="@xml/module_card" />
         </activity>
+
+        <!-- Clean Your TV home_weather: the weather now as one line under Home's date (NowProvider). The provider
+             is read-only and holds only that line; RefreshJob fetches once when Home asks and the line is stale. -->
+        <meta-data android:name="com.gathin.tvhome.weather" android:value="io.github.sumyabazar1.weather.now" />
+        <provider
+            android:name=".NowProvider"
+            android:authorities="io.github.sumyabazar1.weather.now"
+            android:exported="true" />
+        <service
+            android:name=".RefreshJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 </manifest>

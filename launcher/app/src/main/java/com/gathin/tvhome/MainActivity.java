@@ -201,6 +201,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private TextView raceKicker, raceHeadline, raceSessions;
     /** game_day: each team's next game from an add-on, rotating in the race panel; null when the key is off. */
     private GameDay gameDay;
+    /** home_weather: the weather now under the date, from an add-on; null when the key is off. */
+    private HomeWeather homeWeather;
+    private TextView homeWeatherLine;
     private View raceBar;
     private LinearLayout racePager;
     private long rotationStart;
@@ -578,6 +581,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         raceBar = findViewById(R.id.raceBar);
         racePager = findViewById(R.id.racePager);
         gameDay = GameDay.create(this, cfg.gameDay, handler, this::updatePanel);
+        homeWeatherLine = findViewById(R.id.homeWeather);
+        homeWeather = HomeWeather.create(this, cfg.homeWeather, handler, this::updateHomeWeather);
         // The rotation runs on the clock that never jumps: setting the TV's time must not stall or stretch a turn.
         rotationStart = SystemClock.elapsedRealtime();
         showStats = cfg.showStats;
@@ -1130,6 +1135,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (showStats) startStats();
         if (gameDay != null) gameDay.start();
+        if (homeWeather != null) homeWeather.start();
         sky.update();
         wallpaperPlayer.start();
         handler.postDelayed(minuteTick, MINUTE_MS);
@@ -1315,6 +1321,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         startPending = null;   // leaving Home before the network came back: the boot's app stays closed
         stopStats();
         if (gameDay != null) gameDay.stop();
+        if (homeWeather != null) homeWeather.stop();
         handler.removeCallbacks(turnTick);
         if (lamp != null) lamp.stop();
         cancelPendingFocusScroll();
@@ -1375,6 +1382,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         RemoteKeys.release(this);
         cancelHoldOk();
         if (gameDay != null) gameDay.shutdown();
+        if (homeWeather != null) homeWeather.shutdown();
         unregisterReceiver(packageReceiver);
         if (openOnStartOnWake) unregisterReceiver(wakeReceiver);
         wallpaperPlayer.close();
@@ -2759,6 +2767,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (shamsi) shamsiDate.setText(Shamsi.today(getResources()));
         if (lunar) lunarDate.setText(Lunar.today(getResources(), lunarOffset));
+    }
+
+    /** home_weather: the add-on's line under the date, hidden while it publishes none. */
+    private void updateHomeWeather() {
+        String line = homeWeather == null ? "" : homeWeather.line();
+        homeWeatherLine.setText(line);
+        homeWeatherLine.setVisibility(line.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     // ---- race-weekend panel (a theme's race_calendar) -----------------------------------------------
